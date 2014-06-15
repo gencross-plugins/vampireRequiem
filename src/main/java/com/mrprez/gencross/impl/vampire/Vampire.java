@@ -3,17 +3,16 @@ package com.mrprez.gencross.impl.vampire;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import com.mrprez.gencross.Personnage;
-import com.mrprez.gencross.PoolPoint;
 import com.mrprez.gencross.Property;
 import com.mrprez.gencross.history.ConstantHistoryFactory;
+import com.mrprez.gencross.history.HistoryFactory;
 import com.mrprez.gencross.history.HistoryItem;
 import com.mrprez.gencross.history.HistoryUtil;
 import com.mrprez.gencross.history.LevelToReachHistoryFactory;
-import com.mrprez.gencross.history.TabHistoryFactory;
+import com.mrprez.gencross.history.ProportionalHistoryFactory;
 import com.mrprez.gencross.value.IntValue;
 import com.mrprez.gencross.value.Value;
 
@@ -23,28 +22,29 @@ public class Vampire extends Personnage {
 	@Override
 	public void calculate() {
 		super.calculate();
-		if(phase.equals("Clan")){
-			calculateClan();
-		} else if(phase.equals("Creation")){
+		calculateAvantages();
+		if(phase.equals("Humain")){
 			calculateAttributs();
 			calculateTalents();
 			calculatePointPools();
 			calculateViceEtVertu();
-			calculateAvantages();
+		}else if(phase.equals("Clan")){
+			if(getProperty("Clan").getValue().getString().equals("")){
+				errors.add("Vous devez choisir un clan");
+			}
+		}else if(phase.equals("Etincelle de non vie")){
+			calculateBonusClan();
 			calculateDisciplines();
 		}
 	}
 	
-	private void calculateClan(){
-		if(getProperty("Clan").getValue().getString().equals("")){
-			errors.add("Vous devez choisir un clan");
-		}else{
-			String attributBonus[] = determineAttributsBonus();
-			if(getProperty("Attributs#"+attributBonus[0]).getValue().getInt()==1
-					&& getProperty("Attributs#"+attributBonus[1]).getValue().getInt()==1){
-				errors.add("Vous devez choisir votre bonus de clan en "+attributBonus[0].replace('#', '/')+" ou "+attributBonus[1].replace('#', '/'));
-			}
-			
+	public void calculateBonusClan(){
+		Property property0 = getProperty("Attributs#"+determineAttributsBonus()[0]);
+		Property property1 = getProperty("Attributs#"+determineAttributsBonus()[1]);
+		int sum = property0.getValue().getInt()-property0.getMin().getInt()
+				+ property1.getValue().getInt()-property1.getMin().getInt();
+		if(sum!=1){
+			errors.add("Vous devez ajouter un point dans l'attribut "+property0.getName()+" ou "+property1.getName() );
 		}
 	}
 	
@@ -55,15 +55,13 @@ public class Vampire extends Personnage {
 	}
 	
 	private void calculatePointPools(){
-		String error = null;
-		Iterator<PoolPoint> it = getPointPools().values().iterator();
-		while(it.hasNext() && error==null){
-			if(it.next().getRemaining()!=0){
-				error = "Il reste des points à dépenser";
+		List<String> poolsToEmpty = Arrays.asList("Attributs Majeur", "Attributs Intermediaire", "Attributs Mineur", 
+				"Talents Mineur", "Talents Intermediaire", "Talents Majeur", "Spécialités");
+		for(String poolPointName : poolsToEmpty){
+			if(getPointPools().get(poolPointName).getRemaining()!=0){
+				errors.add("Il reste des points à dépenser (Attributs, Talents et Spécialités)");
+				return;
 			}
-		}
-		if(error!=null){
-			errors.add(error);
 		}
 	}
 	
@@ -128,86 +126,6 @@ public class Vampire extends Personnage {
 		return Arrays.asList("Célérité", "Puissance", "Invulnérabilité", "Dissimulation", "Animalisme");
 	}
 	
-	public void creationFinished(){
-		pointPools.put("Experience", new PoolPoint("Experience", 0));
-		
-		Property attributs = getProperty("Attributs");
-		for(Property attributGroup : attributs.getSubProperties()){
-			attributGroup.setEditable(false);
-			for(Property attribut : attributGroup.getSubProperties()){
-				attribut.setHistoryFactory(new LevelToReachHistoryFactory(5, "Experience"));
-			}
-		}
-		Property talents = getProperty("Talents");
-		for(Property talentGroup : talents.getSubProperties()){
-			talentGroup.setEditable(false);
-			for(Property talent : talentGroup.getSubProperties()){
-				talent.setHistoryFactory(new LevelToReachHistoryFactory(3, "Experience"));
-				talent.getSubProperties().getDefaultProperty().setHistoryFactory(new ConstantHistoryFactory("Experience", 3));
-			}
-		}
-		Property avantages = getProperty("Avantages");
-		avantages.getSubProperties().getDefaultProperty().setHistoryFactory(new LevelToReachHistoryFactory(2, "Expérience"));
-		for(Property avantage : avantages.getSubProperties()){
-			avantage.setHistoryFactory(new LevelToReachHistoryFactory(2, "Experience"));
-		}
-		for(Property option : avantages.getSubProperties().getOptions().values()){
-			option.setHistoryFactory(new LevelToReachHistoryFactory(2, "Experience"));
-		}
-		Property moralite = getProperty("Humanité");
-		moralite.setEditable(true);
-		moralite.setHistoryFactory(new LevelToReachHistoryFactory(3, "Experience"));
-		
-		for(Property discipline : getProperty("Disciplines").getSubProperties()){
-			int factor;
-			if(getDisciplineCommune().contains(discipline.getName())){
-				factor = 5;
-			} else if(getDisciplinesClan().contains(discipline.getName())){
-				factor = 5;
-			} else {
-				factor = 7;
-			}
-			discipline.setHistoryFactory(new LevelToReachHistoryFactory(factor, "Experience"));
-		}
-		for(Property discipline : getProperty("Disciplines").getSubProperties().getOptions().values()){
-			int factor;
-			if(getDisciplineCommune().contains(discipline.getName())){
-				factor = 5;
-			} else if(getDisciplinesClan().contains(discipline.getName())){
-				factor = 5;
-			} else {
-				factor = 7;
-			}
-			discipline.setHistoryFactory(new LevelToReachHistoryFactory(factor, "Experience"));
-		}
-	}
-	
-	public void clanChoosen(){
-		for(Property attGroup : getProperty("Attributs").getSubProperties()){
-			attGroup.setEditable(true);
-			for(Property attribut : attGroup.getSubProperties()){
-				attribut.setEditable(true);
-				attribut.setMax(new IntValue(5));
-				attribut.setMin();
-				attribut.setHistoryFactory(new TabHistoryFactory(new Integer[]{-1,0,1,2,3,5}, "Attributs Intermediaire"));
-			}
-		}
-		getProperty("Clan").setEditable(false);
-	}
-	
-	public void changeClan(Property clan, Value oldValue){
-		for(Property attGroup : getProperty("Attributs").getSubProperties()){
-			for(Property attribut : attGroup.getSubProperties()){
-				attribut.setEditable(false);
-				attribut.setMax(new IntValue(5));
-			}
-		}
-		String attributsBonus[] = determineAttributsBonus();
-		for(int i=0;i<attributsBonus.length; i++){
-			getProperty("Attributs#"+attributsBonus[i]).setEditable(true);
-			getProperty("Attributs#"+attributsBonus[i]).setMax(new IntValue(2));
-		}
-	}
 	
 	public void changeAttributGroupValue(Property attributGroup, Value oldValue){
 		String newPoolPoint = "Attributs "+attributGroup.getValue().toString();
@@ -250,88 +168,6 @@ public class Vampire extends Personnage {
 		return true;
 	}
 	
-	public Boolean addMagie(Property magie){
-		Property owner = (Property)magie.getOwner();
-		String statutName;
-		if(owner.getName().equals("Cruac")){
-			statutName = "Cercle de la Sorcière";
-		}else{
-			statutName = "Lancea Sanctum";
-		}
-		Property statut = getProperty("Avantages#Statut - "+statutName);
-		if(statut==null){
-			actionMessage = "Vous devez avoir du Statut - "+statutName;
-			return false;
-		}
-		int max = 0;
-		for(Property p : owner.getSubProperties()){
-			if(p.getValue().getInt()>max){
-				max = p.getValue().getInt();
-			}
-		}
-		if(magie.getValue().getInt() > max + 1){
-			actionMessage = "Vous devez prendre chaque niveau de "+owner.getName();
-			return false;
-		}
-		if(phase.equals("Damné")){
-			if( magie.getValue().getInt() == max + 1 ){
-				magie.setHistoryFactory(new ConstantHistoryFactory("Experience", magie.getValue().getInt() * 7));
-			} else {
-				magie.setHistoryFactory(new ConstantHistoryFactory("Experience", magie.getValue().getInt() * 2));
-			}
-		}
-		
-		return true;
-	}
-	
-	public Boolean deleteMagie(Property magie){
-		Property owner = (Property)magie.getOwner();
-		int max = 0;
-		boolean existeMemeNiveau = false;
-		for(Property p : owner.getSubProperties()){
-			if(p.getValue().getInt()>max){
-				max = p.getValue().getInt();
-			}
-			if(p.getValue().getInt() == magie.getValue().getInt()
-					&& !p.getFullName().equals(magie.getFullName())){
-				existeMemeNiveau = true;
-			}
-		}
-		if(magie.getValue().getInt() < max && !existeMemeNiveau){
-			actionMessage = "Vous devez avoir chaque niveau de "+owner.getName();
-			return false;
-		}
-		if(phase.equals("Damné")){
-			if( existeMemeNiveau ){
-				magie.setHistoryFactory(new ConstantHistoryFactory("Experience", magie.getValue().getInt() * 2));
-			} else {
-				magie.setHistoryFactory(new ConstantHistoryFactory("Experience", magie.getValue().getInt() * 7));
-			}
-		}
-		
-		return true;
-	}
-	
-	public Boolean addAnneau(Property newAnneau){
-		Property statut = getProperty("Avantages#Statut - Ordo Dracul");
-		if(statut==null){
-			actionMessage = "Vous devez avoir du Statut - Ordo Dracul";
-			return false;
-		}
-		return true;
-	}
-	
-	public Boolean changeAnneau(Property anneau, Value newValue){
-		if(newValue.getInt() < anneau.getValue().getInt()){
-			return true;
-		}
-		Property statut = getProperty("Avantages#Statut - Ordo Dracul");
-		if(statut==null){
-			actionMessage = "Vous devez avoir du Statut - Ordo Dracul";
-			return false;
-		}
-		return true;
-	}
 	
 	private int compteLangues(Property langue){
 		int compte = 0;
@@ -345,6 +181,147 @@ public class Vampire extends Personnage {
 		}
 		return compte;
 	}
+	
+	public void addAnneau(Property property){
+		HistoryItem historyItem = getHistory().get(getHistory().size()-1);
+		int sum = 0;
+		for(Property anneau : getProperty("Disciplines#Anneaux du dragon").getSubProperties()){
+			sum = sum + anneau.getValue().getInt();
+		}
+		getPointPools().get(historyItem.getPointPool()).spend(-historyItem.getCost());
+		historyItem.setCost(sum*7);
+		getPointPools().get(historyItem.getPointPool()).spend(historyItem.getCost());
+	}
+	
+	public void changeAnneau(Property property, Value oldValue){
+		HistoryItem historyItem = getHistory().get(getHistory().size()-1);
+		int sumAfter = 0;
+		for(Property anneau : getProperty("Disciplines#Anneaux du dragon").getSubProperties()){
+			sumAfter = sumAfter + anneau.getValue().getInt();
+		}
+		getPointPools().get(historyItem.getPointPool()).spend(-historyItem.getCost());
+		
+		int sumBefore = sumAfter - historyItem.getNewValue().getInt() + historyItem.getOldValue().getInt();
+		int cost = 7 * ( sumAfter*(sumAfter+1)/2-sumBefore*(sumBefore+1)/2 ); 
+		
+		historyItem.setCost(cost);
+		getPointPools().get(historyItem.getPointPool()).spend(cost);
+	}
+	
+	public void deleteAnneau(Property property){
+		HistoryItem historyItem = getHistory().get(getHistory().size()-1);
+		int sumAfter = 0;
+		for(Property anneau : getProperty("Disciplines#Anneaux du dragon").getSubProperties()){
+			sumAfter = sumAfter + anneau.getValue().getInt();
+		}
+		getPointPools().get(historyItem.getPointPool()).spend(-historyItem.getCost());
+		
+		int sumBefore = sumAfter + property.getValue().getInt();
+		int cost = 7 * ( sumAfter*(sumAfter+1)/2-sumBefore*(sumBefore+1)/2 ); 
+		
+		historyItem.setCost(cost);
+		getPointPools().get(historyItem.getPointPool()).spend(cost);
+	}
+	
+	
+	public boolean checkDeleteMagie(Property magie){
+		boolean hasUpperRituel=false;
+		boolean hasOtherLevelRituel=false;
+		for(Property property : ((Property)magie.getOwner()).getSubProperties()){
+			if( ! property.getName().equals(magie.getName())){
+				if(property.getValue().getInt()==magie.getValue().getInt()){
+					hasOtherLevelRituel=true;;
+				}
+				if(property.getValue().getInt()==magie.getValue().getInt()+1){
+					hasUpperRituel=true;
+				}
+			}
+		}
+		if(hasUpperRituel && !hasOtherLevelRituel){
+			actionMessage = "Vous devez supprimer les rituels de niveau supérieur avant";
+			return false;
+		}
+		return true;
+	}
+	
+	
+	public void deleteMagie(Property magie){
+		int count = 0;
+		int max = 0;
+		for(Property property : ((Property)magie.getOwner()).getSubProperties()){
+			if(property.getValue().getInt()==magie.getValue().getInt()){
+				count++;
+			}
+			if(max < property.getValue().getInt()){
+				max = property.getValue().getInt();
+			}
+		}
+		((Property)magie.getOwner()).setValue(new IntValue(max));
+		if(count>0){
+			HistoryItem historyItem = getHistory().get(getHistory().size()-1);
+			getPointPools().get(historyItem.getPointPool()).spend(-historyItem.getCost());
+			historyItem.setCost(historyItem.getCost()/7*2);
+			getPointPools().get(historyItem.getPointPool()).spend(historyItem.getCost());
+		}
+	}
+	
+	
+	public boolean checkAddMagie(Property magie){
+		if(magie.getValue().getInt()==1){
+			return true;
+		}
+		for(Property property : ((Property)magie.getOwner()).getSubProperties()){
+			if(property.getValue().getInt()==magie.getValue().getInt()-1){
+				return true;
+			}
+		}
+		actionMessage = "Vous devez prendre un rituel de niveau "+(magie.getValue().getInt()-1)+" avant";
+		return false;
+	}
+	
+	
+	public void addMagie(Property magie){
+		int count = 0;
+		int max = 0;
+		for(Property property : ((Property)magie.getOwner()).getSubProperties()){
+			if(property.getValue().getInt()==magie.getValue().getInt()){
+				count++;
+			}
+			if(max < property.getValue().getInt()){
+				max = property.getValue().getInt();
+			}
+		}
+		((Property)magie.getOwner()).setValue(new IntValue(max));
+		if(count>1){
+			HistoryItem historyItem = getHistory().get(getHistory().size()-1);
+			getPointPools().get(historyItem.getPointPool()).spend(-historyItem.getCost());
+			historyItem.setCost(historyItem.getCost()/7*2);
+			getPointPools().get(historyItem.getPointPool()).spend(historyItem.getCost());
+		}
+	}
+	
+	private String[] determineAttributsBonus(){
+		String clan = getProperty("Clan").getValue().getString();
+		String attributBonus[] = new String[2];
+		if (clan.equals("Daeva")) {
+			attributBonus[0] = "Physique#Agilité";
+			attributBonus[1] = "Social#Manipulation";
+		} else if (clan.equals("Gangrel")) {
+			attributBonus[0] = "Social#Calme";
+			attributBonus[1] = "Physique#Vigueur";
+		} else if (clan.equals("Mekhet")) {
+			attributBonus[0] = "Mental#Intelligence";
+			attributBonus[1] = "Mental#Astuce";
+		} else if (clan.equals("Nosferatu")) {
+			attributBonus[0] = "Social#Calme";
+			attributBonus[1] = "Physique#Force";
+		} else if (clan.equals("Ventru")) {
+			attributBonus[0] = "Social#Présence";
+			attributBonus[1] = "Mental#Résolution";
+		}
+		return attributBonus;
+	}
+	
 	
 	private String checkAvantage(Property avantage){
 		if(avantage.getName().equals("Langue étrangère")){
@@ -505,27 +482,94 @@ public class Vampire extends Personnage {
 	}
 	
 	
-	
-	private String[] determineAttributsBonus(){
-		String clan = getProperty("Clan").getValue().getString();
-		String attributBonus[] = new String[2];
-		if (clan.equals("Daeva")) {
-			attributBonus[0] = "Physique#Agilité";
-			attributBonus[1] = "Social#Manipulation";
-		} else if (clan.equals("Gangrel")) {
-			attributBonus[0] = "Social#Calme";
-			attributBonus[1] = "Physique#Vigueur";
-		} else if (clan.equals("Mekhet")) {
-			attributBonus[0] = "Mental#Intelligence";
-			attributBonus[1] = "Mental#Astuce";
-		} else if (clan.equals("Nosferatu")) {
-			attributBonus[0] = "Social#Calme";
-			attributBonus[1] = "Physique#Force";
-		} else if (clan.equals("Ventru")) {
-			attributBonus[0] = "Social#Présence";
-			attributBonus[1] = "Mental#Résolution";
+	public void phaseHumainFinished(){
+		for(Property attributCat : getProperty("Attributs").getSubProperties()){
+			attributCat.setEditable(false);
+			for(Property attribut : attributCat.getSubProperties()){
+				attribut.setEditable(false);
+			}
 		}
-		return attributBonus;
+		for(Property talentCat : getProperty("Talents").getSubProperties()){
+			talentCat.setEditable(false);
+			for(Property talent : talentCat.getSubProperties()){
+				talent.setEditable(false);
+				talent.getSubProperties().setFixe(true);
+			}
+		}
+		getProperty("Clan").setEditable(true);
+	}
+	
+	public void phaseClanFinished(){
+		getProperty("Clan").setEditable(false);
+		Property property0 = getProperty("Attributs#"+determineAttributsBonus()[0]);
+		Property property1 = getProperty("Attributs#"+determineAttributsBonus()[1]);
+		property0.setEditable(true);
+		property1.setEditable(true);
+		property0.setHistoryFactory(HistoryFactory.FREE_HISTORY_FACTORY);
+		property1.setHistoryFactory(HistoryFactory.FREE_HISTORY_FACTORY);
+		property0.setMin();
+		property1.setMin();
+		property0.setMax(new IntValue(Math.min(property0.getValue().getInt()+1, 5)));
+		property1.setMax(new IntValue(Math.min(property1.getValue().getInt()+1, 5)));
+		
+		getProperty("Disciplines").getSubProperties().setFixe(false);
+		getPointPools().get("Disciplines").setToEmpty(true);
+		
+		getPointPools().get("Avantages").setToEmpty(true);
+	}
+	
+	
+	public void phaseEtincelleFinished(){
+		Property attributs = getProperty("Attributs");
+		for(Property attributGroup : attributs.getSubProperties()){
+			for(Property attribut : attributGroup.getSubProperties()){
+				attribut.setHistoryFactory(new LevelToReachHistoryFactory(5, "Experience"));
+				attribut.setMin(new IntValue(1));
+				attribut.setMax(new IntValue(5));
+			}
+		}
+		Property talents = getProperty("Talents");
+		for(Property talentGroup : talents.getSubProperties()){
+			talentGroup.setEditable(false);
+			for(Property talent : talentGroup.getSubProperties()){
+				talent.setHistoryFactory(new LevelToReachHistoryFactory(3, "Experience"));
+				talent.getSubProperties().getDefaultProperty().setHistoryFactory(new ConstantHistoryFactory("Experience", 3));
+			}
+		}
+		Property avantages = getProperty("Avantages");
+		avantages.getSubProperties().getDefaultProperty().setHistoryFactory(new LevelToReachHistoryFactory(2, "Expérience"));
+		for(Property avantage : avantages.getSubProperties()){
+			avantage.setHistoryFactory(new LevelToReachHistoryFactory(2, "Experience"));
+		}
+		for(Property option : avantages.getSubProperties().getOptions().values()){
+			option.setHistoryFactory(new LevelToReachHistoryFactory(2, "Experience"));
+		}
+		Property humanite = getProperty("Humanité");
+		humanite.setEditable(true);
+		humanite.setHistoryFactory(new LevelToReachHistoryFactory(3, "Experience"));
+		
+		for(Property discipline : getProperty("Disciplines").getSubProperties()){
+			if(getDisciplineCommune().contains(discipline.getName())){
+				discipline.setHistoryFactory(new LevelToReachHistoryFactory(5, "Experience"));
+			} else if(getDisciplinesClan().contains(discipline.getName())){
+				discipline.setHistoryFactory(new LevelToReachHistoryFactory(5, "Experience"));
+			} else if(discipline.getName().equals("Cruac") || discipline.getName().equals("Thaumaturgie thébaine")){
+				discipline.setHistoryFactory(new ProportionalHistoryFactory("Experience", 7));
+			} else {
+				discipline.setHistoryFactory(new LevelToReachHistoryFactory(7, "Experience"));
+			}
+		}
+		for(Property discipline : getProperty("Disciplines").getSubProperties().getOptions().values()){
+			int factor;
+			if(getDisciplineCommune().contains(discipline.getName())){
+				factor = 5;
+			} else if(getDisciplinesClan().contains(discipline.getName())){
+				factor = 5;
+			} else {
+				factor = 7;
+			}
+			discipline.setHistoryFactory(new LevelToReachHistoryFactory(factor, "Experience"));
+		}
 	}
 	
 	
