@@ -245,6 +245,15 @@ public class Vampire extends Personnage {
 	}
 	
 	
+	public boolean checkDeleteMotherMagie(Property motherMagie){
+		if( ! motherMagie.getSubProperties().isEmpty()){
+			actionMessage = "Vous devez d'abord supprimer les rituels de "+motherMagie.getName();
+			return false;
+		}
+		return true;
+	}
+	
+	
 	public void deleteMagie(Property magie){
 		int count = 0;
 		int max = 0;

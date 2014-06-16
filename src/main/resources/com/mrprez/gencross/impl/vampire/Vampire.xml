@@ -1309,6 +1309,17 @@
 								</property>
 							</defaultProperty>
 						</propertiesList>
+						<historyFactory class="com.mrprez.gencross.history.TabHistoryFactory">
+							<pointPool>Disciplines</pointPool>
+							<args>
+								<arg key="0">0</arg>
+								<arg key="1">1</arg>
+								<arg key="2">1</arg>
+								<arg key="3">1</arg>
+								<arg key="4">1</arg>
+								<arg key="5">1</arg>
+							</args>
+						</historyFactory>
 						<renderer class="com.mrprez.gencross.impl.vampire.MdTRenderer"/>
 					</property>
 					<property editable="false" name="Thaumaturgie thébaine">
@@ -1366,6 +1377,17 @@
 								</property>
 							</defaultProperty>
 						</propertiesList>
+						<historyFactory class="com.mrprez.gencross.history.TabHistoryFactory">
+							<pointPool>Disciplines</pointPool>
+							<args>
+								<arg key="0">0</arg>
+								<arg key="1">1</arg>
+								<arg key="2">1</arg>
+								<arg key="3">1</arg>
+								<arg key="4">1</arg>
+								<arg key="5">1</arg>
+							</args>
+						</historyFactory>
 						<renderer class="com.mrprez.gencross.impl.vampire.MdTRenderer"/>
 					</property>
 					<property editable="false" name="Anneaux du dragon">
@@ -1829,10 +1851,12 @@
 		</listener>
 		<listener class="com.mrprez.gencross.listener.custom.CustomAfterAddPropertyListener">
 			<pattern>Disciplines#Cruac#[^#]*</pattern>
+			<phase>Damné</phase>
 			<arg name="method">addMagie</arg>
 		</listener>
 		<listener class="com.mrprez.gencross.listener.custom.CustomAfterAddPropertyListener">
 			<pattern>Disciplines#Thaumaturgie thébaine#[^#]*</pattern>
+			<phase>Damné</phase>
 			<arg name="method">addMagie</arg>
 		</listener>
 	</afterAddPropertyListeners>
@@ -1845,6 +1869,14 @@
 			<pattern>Disciplines#Thaumaturgie thébaine#[^#]*</pattern>
 			<arg name="method">checkDeleteMagie</arg>
 		</listener>
+		<listener class="com.mrprez.gencross.listener.custom.CustomBeforeDeletePropertyListener">
+			<pattern>Disciplines#Cruac</pattern>
+			<arg name="method">checkDeleteMotherMagie</arg>
+		</listener>
+		<listener class="com.mrprez.gencross.listener.custom.CustomBeforeDeletePropertyListener">
+			<pattern>Disciplines#Thaumaturgie thébaine</pattern>
+			<arg name="method">checkDeleteMotherMagie</arg>
+		</listener>
 	</beforeDeletePropertyListeners>
 	<afterDeletePropertyListeners>
 		<listener class="com.mrprez.gencross.listener.custom.CustomAfterDeletePropertyListener">
@@ -1853,10 +1885,12 @@
 		</listener>
 		<listener class="com.mrprez.gencross.listener.custom.CustomAfterDeletePropertyListener">
 			<pattern>Disciplines#Cruac#[^#]*</pattern>
+			<phase>Damné</phase>
 			<arg name="method">deleteMagie</arg>
 		</listener>
 		<listener class="com.mrprez.gencross.listener.custom.CustomAfterDeletePropertyListener">
 			<pattern>Disciplines#Thaumaturgie thébaine#[^#]*</pattern>
+			<phase>Damné</phase>
 			<arg name="method">deleteMagie</arg>
 		</listener>
 	</afterDeletePropertyListeners>
