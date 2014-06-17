@@ -184,10 +184,7 @@ public class Vampire extends Personnage {
 	
 	public void addAnneau(Property property){
 		HistoryItem historyItem = getHistory().get(getHistory().size()-1);
-		int sum = 0;
-		for(Property anneau : getProperty("Disciplines#Anneaux du dragon").getSubProperties()){
-			sum = sum + anneau.getValue().getInt();
-		}
+		int sum = sumAnneaux();
 		getPointPools().get(historyItem.getPointPool()).spend(-historyItem.getCost());
 		historyItem.setCost(sum*7);
 		getPointPools().get(historyItem.getPointPool()).spend(historyItem.getCost());
@@ -195,10 +192,7 @@ public class Vampire extends Personnage {
 	
 	public void changeAnneau(Property property, Value oldValue){
 		HistoryItem historyItem = getHistory().get(getHistory().size()-1);
-		int sumAfter = 0;
-		for(Property anneau : getProperty("Disciplines#Anneaux du dragon").getSubProperties()){
-			sumAfter = sumAfter + anneau.getValue().getInt();
-		}
+		int sumAfter = sumAnneaux();
 		getPointPools().get(historyItem.getPointPool()).spend(-historyItem.getCost());
 		
 		int sumBefore = sumAfter - historyItem.getNewValue().getInt() + historyItem.getOldValue().getInt();
@@ -210,10 +204,7 @@ public class Vampire extends Personnage {
 	
 	public void deleteAnneau(Property property){
 		HistoryItem historyItem = getHistory().get(getHistory().size()-1);
-		int sumAfter = 0;
-		for(Property anneau : getProperty("Disciplines#Anneaux du dragon").getSubProperties()){
-			sumAfter = sumAfter + anneau.getValue().getInt();
-		}
+		int sumAfter = sumAnneaux();
 		getPointPools().get(historyItem.getPointPool()).spend(-historyItem.getCost());
 		
 		int sumBefore = sumAfter + property.getValue().getInt();
@@ -221,6 +212,22 @@ public class Vampire extends Personnage {
 		
 		historyItem.setCost(cost);
 		getPointPools().get(historyItem.getPointPool()).spend(cost);
+	}
+	
+	public void updateSumAnneau(Property anneau){
+		getProperty("Disciplines#Anneaux du dragon").setValue(new IntValue(sumAnneaux()));
+	}
+	
+	public void updateSumAnneau(Property anneau, Value oldValue){
+		getProperty("Disciplines#Anneaux du dragon").setValue(new IntValue(sumAnneaux()));
+	}
+	
+	public int sumAnneaux(){
+		int sum = 0;
+		for(Property anneau : getProperty("Disciplines#Anneaux du dragon").getSubProperties()){
+			sum = sum + anneau.getValue().getInt();
+		}
+		return sum;
 	}
 	
 	
@@ -564,6 +571,8 @@ public class Vampire extends Personnage {
 				discipline.setHistoryFactory(new LevelToReachHistoryFactory(5, "Experience"));
 			} else if(discipline.getName().equals("Cruac") || discipline.getName().equals("Thaumaturgie thébaine")){
 				discipline.setHistoryFactory(new ProportionalHistoryFactory("Experience", 7));
+			} else if(discipline.getName().equals("Anneaux du dragon")){
+				discipline.setHistoryFactory(new ProportionalHistoryFactory("Experience", 7));
 			} else {
 				discipline.setHistoryFactory(new LevelToReachHistoryFactory(7, "Experience"));
 			}
@@ -575,6 +584,8 @@ public class Vampire extends Personnage {
 			} else if(getDisciplinesClan().contains(discipline.getName())){
 				factor = 5;
 			} else if(discipline.getName().equals("Cruac") || discipline.getName().equals("Thaumaturgie thébaine")){
+				discipline.setHistoryFactory(new ProportionalHistoryFactory("Experience", 7));
+			} else if(discipline.getName().equals("Anneaux du dragon")){
 				discipline.setHistoryFactory(new ProportionalHistoryFactory("Experience", 7));
 			} else {
 				factor = 7;
