@@ -1887,6 +1887,10 @@
 			<pattern>Disciplines#Thaumaturgie thébaine</pattern>
 			<arg name="method">checkDeleteMotherMagie</arg>
 		</listener>
+		<listener class="com.mrprez.gencross.listener.custom.CustomBeforeDeletePropertyListener">
+			<pattern>Disciplines#Anneaux du dragon</pattern>
+			<arg name="method">checkDeleteMotherAnneau</arg>
+		</listener>
 	</beforeDeletePropertyListeners>
 	<afterDeletePropertyListeners>
 		<listener class="com.mrprez.gencross.listener.custom.CustomAfterDeletePropertyListener">

@@ -261,6 +261,15 @@ public class Vampire extends Personnage {
 	}
 	
 	
+	public boolean checkDeleteMotherAnneau(Property motherAnneau){
+		if( ! motherAnneau.getSubProperties().isEmpty()){
+			actionMessage = "Vous devez d'abord supprimer les différents "+motherAnneau.getName();
+			return false;
+		}
+		return true;
+	}
+	
+	
 	public void deleteMagie(Property magie){
 		int count = 0;
 		int max = 0;
@@ -578,7 +587,6 @@ public class Vampire extends Personnage {
 			}
 		}
 		for(Property discipline : getProperty("Disciplines").getSubProperties().getOptions().values()){
-			int factor;
 			if(getDisciplineCommune().contains(discipline.getName())){
 				discipline.setHistoryFactory(new LevelToReachHistoryFactory(5, "Experience"));
 			} else if(getDisciplinesClan().contains(discipline.getName())){
