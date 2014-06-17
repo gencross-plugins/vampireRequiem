@@ -580,18 +580,18 @@ public class Vampire extends Personnage {
 		for(Property discipline : getProperty("Disciplines").getSubProperties().getOptions().values()){
 			int factor;
 			if(getDisciplineCommune().contains(discipline.getName())){
-				factor = 5;
+				discipline.setHistoryFactory(new LevelToReachHistoryFactory(5, "Experience"));
 			} else if(getDisciplinesClan().contains(discipline.getName())){
-				factor = 5;
+				discipline.setHistoryFactory(new LevelToReachHistoryFactory(5, "Experience"));
 			} else if(discipline.getName().equals("Cruac") || discipline.getName().equals("Thaumaturgie thébaine")){
 				discipline.setHistoryFactory(new ProportionalHistoryFactory("Experience", 7));
 			} else if(discipline.getName().equals("Anneaux du dragon")){
 				discipline.setHistoryFactory(new ProportionalHistoryFactory("Experience", 7));
 			} else {
-				factor = 7;
+				discipline.setHistoryFactory(new LevelToReachHistoryFactory(7, "Experience"));
 			}
-			discipline.setHistoryFactory(new LevelToReachHistoryFactory(factor, "Experience"));
 		}
+		getProperty("Disciplines").getSubProperties().getDefaultProperty().setHistoryFactory(new LevelToReachHistoryFactory(7, "Experience"));
 	}
 	
 	
