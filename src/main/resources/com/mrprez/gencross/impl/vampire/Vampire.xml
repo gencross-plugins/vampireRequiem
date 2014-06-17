@@ -1827,7 +1827,12 @@
 		</listener>
 		<listener class="com.mrprez.gencross.listener.custom.CustomAfterChangeValueListener">
 			<pattern>Disciplines#Anneaux du dragon#[^#]*</pattern>
+			<phase>Damné</phase>
 			<arg name="method">changeAnneau</arg>
+		</listener>
+		<listener class="com.mrprez.gencross.listener.custom.CustomAfterChangeValueListener">
+			<pattern>Disciplines#Anneaux du dragon#[^#]*</pattern>
+			<arg name="method">updateSumAnneau</arg>
 		</listener>
 	</afterChangeValueListeners>
 	<beforeAddPropertyListeners>
@@ -1847,7 +1852,12 @@
 	<afterAddPropertyListeners>
 		<listener class="com.mrprez.gencross.listener.custom.CustomAfterAddPropertyListener">
 			<pattern>Disciplines#Anneaux du dragon#[^#]*</pattern>
+			<phase>Damné</phase>
 			<arg name="method">addAnneau</arg>
+		</listener>
+		<listener class="com.mrprez.gencross.listener.custom.CustomAfterAddPropertyListener">
+			<pattern>Disciplines#Anneaux du dragon#[^#]*</pattern>
+			<arg name="method">updateSumAnneau</arg>
 		</listener>
 		<listener class="com.mrprez.gencross.listener.custom.CustomAfterAddPropertyListener">
 			<pattern>Disciplines#Cruac#[^#]*</pattern>
@@ -1881,7 +1891,12 @@
 	<afterDeletePropertyListeners>
 		<listener class="com.mrprez.gencross.listener.custom.CustomAfterDeletePropertyListener">
 			<pattern>Disciplines#Anneaux du dragon#[^#]*</pattern>
+			<phase>Damné</phase>
 			<arg name="method">deleteAnneau</arg>
+		</listener>
+		<listener class="com.mrprez.gencross.listener.custom.CustomAfterDeletePropertyListener">
+			<pattern>Disciplines#Anneaux du dragon#[^#]*</pattern>
+			<arg name="method">updateSumAnneau</arg>
 		</listener>
 		<listener class="com.mrprez.gencross.listener.custom.CustomAfterDeletePropertyListener">
 			<pattern>Disciplines#Cruac#[^#]*</pattern>
