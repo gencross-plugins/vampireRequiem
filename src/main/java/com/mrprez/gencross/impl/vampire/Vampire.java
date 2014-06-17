@@ -574,6 +574,8 @@ public class Vampire extends Personnage {
 				factor = 5;
 			} else if(getDisciplinesClan().contains(discipline.getName())){
 				factor = 5;
+			} else if(discipline.getName().equals("Cruac") || discipline.getName().equals("Thaumaturgie thébaine")){
+				discipline.setHistoryFactory(new ProportionalHistoryFactory("Experience", 7));
 			} else {
 				factor = 7;
 			}
