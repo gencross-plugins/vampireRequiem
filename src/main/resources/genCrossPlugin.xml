@@ -4,6 +4,6 @@
 	<entry key="genCross.plugin.name">Vampire</entry>
 	<entry key="genCross.plugin.className">com.mrprez.gencross.impl.vampire.Vampire</entry>
 	<entry key="genCross.plugin.gcrFileName">com/mrprez/gencross/impl/vampire/Vampire.gcr</entry>
-	<entry key="genCross.plugin.version">0.1</entry>
+	<entry key="genCross.plugin.version">1.0</entry>
 </properties>
 
