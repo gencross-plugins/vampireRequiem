@@ -551,6 +551,7 @@ public class Vampire extends Personnage {
 				attribut.setHistoryFactory(new LevelToReachHistoryFactory(5, "Experience"));
 				attribut.setMin(new IntValue(1));
 				attribut.setMax(new IntValue(5));
+				attribut.setEditable(true);
 			}
 		}
 		Property talents = getProperty("Talents");
@@ -558,7 +559,9 @@ public class Vampire extends Personnage {
 			talentGroup.setEditable(false);
 			for(Property talent : talentGroup.getSubProperties()){
 				talent.setHistoryFactory(new LevelToReachHistoryFactory(3, "Experience"));
+				talent.setEditable(true);
 				talent.getSubProperties().getDefaultProperty().setHistoryFactory(new ConstantHistoryFactory("Experience", 3));
+				talent.getSubProperties().setFixe(false);
 			}
 		}
 		Property avantages = getProperty("Avantages");

@@ -1814,6 +1814,11 @@
 			<min><Value class="com.mrprez.gencross.value.IntValue">0</Value></min>
 			<max><Value class="com.mrprez.gencross.value.IntValue">10</Value></max>
 		</property>
+		<property editable="false" name="Puissance du Sang">
+			<Value class="com.mrprez.gencross.value.IntValue">1</Value>
+			<renderer class="com.mrprez.gencross.impl.vampire.MdTRenderer"/>
+			<min><Value class="com.mrprez.gencross.value.IntValue">1</Value></min>
+		</property>
 	</properties>
 	<beforeChangeValueListeners></beforeChangeValueListeners>
 	<afterChangeValueListeners>
