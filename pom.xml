@@ -18,7 +18,7 @@
 	
 	<scm>
 		<connection>scm:git:git://github.com/gencross-plugins/vampire-requiem.git</connection>
-		<developerConnection>scm:git@github.com:gencross-plugins/vampireRequiem.git</developerConnection>
+		<developerConnection>scm:git:git@github.com:gencross-plugins/vampireRequiem.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 	
