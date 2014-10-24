@@ -608,6 +608,8 @@ public class Vampire extends Personnage {
 		getProperty("Volonté").setEditable(true);
 		getProperty("Volonté").setHistoryFactory(new ProportionalHistoryFactory("Experience", 8));
 		getProperty("Volonté").setMin(new IntValue(0));
+		
+		getProperty("Puissance du Sang").setEditable(true);
 	}
 	
 	
