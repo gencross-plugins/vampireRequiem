@@ -603,6 +603,11 @@ public class Vampire extends Personnage {
 			}
 		}
 		getProperty("Disciplines").getSubProperties().getDefaultProperty().setHistoryFactory(new LevelToReachHistoryFactory(7, "Experience"));
+		
+		formulaManager.removeFormula("Volonté");
+		getProperty("Volonté").setEditable(true);
+		getProperty("Volonté").setHistoryFactory(new ProportionalHistoryFactory("Experience", 8));
+		getProperty("Volonté").setMin(new IntValue(0));
 	}
 	
 	
