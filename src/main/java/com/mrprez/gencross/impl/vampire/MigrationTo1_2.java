@@ -1,11 +1,12 @@
 package com.mrprez.gencross.impl.vampire;
 
+import com.mrprez.gencross.Version;
 import com.mrprez.gencross.history.ProportionalHistoryFactory;
 import com.mrprez.gencross.migration.MigrationPersonnage;
 import com.mrprez.gencross.migration.Migrator;
 import com.mrprez.gencross.value.IntValue;
 
-public class MigrationTo1_1 implements Migrator {
+public class MigrationTo1_2 implements Migrator {
 
 	@Override
 	public MigrationPersonnage migrate(MigrationPersonnage migrationPersonnage) throws Exception {
@@ -17,6 +18,8 @@ public class MigrationTo1_1 implements Migrator {
 			
 			migrationPersonnage.getProperty("Puissance du Sang").setEditable(true);
 		}
+		
+		migrationPersonnage.getPluginDescriptor().setVersion(new Version(1, 2));
 		
 		return migrationPersonnage;
 	}

@@ -4,7 +4,7 @@
 	<entry key="genCross.plugin.name">Vampire</entry>
 	<entry key="genCross.plugin.className">com.mrprez.gencross.impl.vampire.Vampire</entry>
 	<entry key="genCross.plugin.gcrFileName">com/mrprez/gencross/impl/vampire/Vampire.gcr</entry>
-	<entry key="genCross.plugin.version">1.1</entry>
-	<entry key="genCross.plugin.migration.1.0">com.mrprez.gencross.impl.vampire.MigrationTo1_1</entry>
+	<entry key="genCross.plugin.version">1.2</entry>
+	<entry key="genCross.plugin.migration.1.0">com.mrprez.gencross.impl.vampire.MigrationTo1_2</entry>
 </properties>
 
