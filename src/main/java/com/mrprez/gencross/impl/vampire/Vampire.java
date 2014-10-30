@@ -149,10 +149,11 @@ public class Vampire extends Personnage {
 		int transfertCost = 0;
 		for(Property talent : talentGroup.getSubProperties().getProperties().values()){
 			talent.getHistoryFactory().setPointPool(newPoolPoint);
-			List<HistoryItem> subHistory = HistoryUtil.getSubHistory(history, talent);
-			for(HistoryItem subHistoryItem : subHistory){
-				transfertCost = transfertCost + subHistoryItem.getCost();
-				subHistoryItem.setPointPool(newPoolPoint);
+			for(HistoryItem historyItem : history){
+				if(historyItem.getAbsoluteName().equals(talent.getAbsoluteName())){
+					transfertCost = transfertCost + historyItem.getCost();
+					historyItem.setPointPool(newPoolPoint);
+				}
 			}
 		}
 		getPointPools().get(oldPoolPoint).spend(-transfertCost);
